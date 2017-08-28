@@ -57,43 +57,24 @@ function convertColumnElementsToData(props) {
   const elementTemplates = {
     cell: [],
     footer: [],
-    groupHeader: [],
     header: [],
   };
 
-  const hasGroupHeader = children.length && children[0].type.__TableColumnGroup__;
-  if (hasGroupHeader) {
-    const columnGroups = map(children, _extractProps);
-    forEach(children, (columnGroupElement, index) => {
-      elementTemplates.groupHeader.push(columnGroupElement.props.header);
+  const columns = map(children, _extractProps);
+  forEach(children, (columnElement, index) => {
+    if (columnElement.type.__TableColumnGroup__) {
+      // Todo: wrap in <HeaderWrapper>
+      elementTemplates.header.push(columnElement.props.header);
 
-      const columns = [];
-      React.Children.forEach(columnGroupElement.props.children, (child) => {
-        columns.push(_extractProps(child));
-        _extractTemplates(elementTemplates, child);
-      });
-      columnGroups[index].columns = columns;
-    });
+      columns[index].children = convertColumnElementsToData(columnElement.props);
+    }
 
-    return {
-      columnGroups,
-      elementTemplates: elementTemplates,
-      useGroupHeader: true,
-    };
-  }
-
-  // Use a default column group
-  const columns = [];
-  forEach(children, (child) => {
-    columns.push(_extractProps(child));
-    _extractTemplates(elementTemplates, child);
+    _extractTemplates(elementTemplates, columnElement);
   });
+
   return {
-    columnGroups: [{
-      columns: columns,
-    }],
-    elementTemplates: elementTemplates,
-    useGroupHeader: false,
+    children: columns,
+    elementTemplates,
   };
 };
 

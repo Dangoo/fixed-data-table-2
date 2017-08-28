@@ -66,7 +66,7 @@ export default createSelector([
   forEach(columnGroups, (columnGroup, index) => {
     const groupData = {
       props: columnGroup,
-      template: elementTemplates.groupHeader[index],
+      template: elementTemplates.header[index],
     };
     if (columnGroup.fixed) {
       fixedColumnGroups.push(groupData);

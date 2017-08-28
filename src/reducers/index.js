@@ -260,7 +260,8 @@ function setStateFromProps(state, props) {
   ]);
 
   const {
-    columnGroups,
+    // Todo: Spread to all appearances
+    children: columnGroups,
     elementTemplates,
     useGroupHeader,
   } = convertColumnElementsToData(props);
@@ -271,7 +272,8 @@ function setStateFromProps(state, props) {
     elementTemplates,
     rowHeightGetter: () => rowHeight,
     subRowHeightGetter: () => subRowHeight || 0,
-    useGroupHeader
+    // Todo: Remove placeholder
+    useGroupHeader: false
   }, propsToState);
 }
 
