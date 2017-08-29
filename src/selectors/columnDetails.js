@@ -31,7 +31,7 @@ let columnTemplates;
 
 /**
  * @param {{
- *   columnGroups: !Array.<{
+ *   columns: !Array.<{
  *     columns: !Array.<{
  *       flexGrow: number,
  *       width: number
@@ -53,28 +53,16 @@ let columnTemplates;
  * }} Lists of details for the fixed and scrollable columns and column groups
  */
 export default createSelector([
-  state => state.columnGroups,
+  state => state.columnGroups.columns,
   columnsSelector,
-  state => state.elementTemplates,
-], (columnGroups, columns, elementTemplates) => {
+  state => state.columnGroups.elementTemplates,
+], (topLevelColumns, columns, elementTemplates) => {
   const { allColumns } = columns;
 
   // Ugly transforms to extract data into a row consumable format.
   // TODO (jordan) figure out if this can efficiently be merged with the result of convertColumnElementsToData.
   const fixedColumnGroups = [];
   const scrollableColumnGroups = [];
-  forEach(columnGroups, (columnGroup, index) => {
-    const groupData = {
-      props: columnGroup,
-      template: elementTemplates.header[index],
-    };
-    if (columnGroup.fixed) {
-      fixedColumnGroups.push(groupData);
-    } else {
-      scrollableColumnGroups.push(groupData);
-    }
-  });
-
   const fixedColumns = {
     cell: [],
     header: [],
@@ -85,24 +73,26 @@ export default createSelector([
     header: [],
     footer: [],
   };
-  forEach(allColumns, (column, index) => {
-    let columnContainer = scrollableColumns;
-    if (column.fixed) {
-      columnContainer = fixedColumns;
-    }
+  topLevelColumns.forEach((column, index) => {
+    // Array.prototype.push.apply(columnsElementTemplates, column.elementTemplates);
 
-    columnContainer.cell.push({
-      props: column,
-      template: elementTemplates.cell[index],
-    });
-    columnContainer.header.push({
-      props: column,
-      template: elementTemplates.header[index],
-    });
-    columnContainer.footer.push({
-      props: column,
-      template: elementTemplates.footer[index],
-    });
+    if (column.isGroup) {
+      const groupData = {
+        props: column,
+        template: elementTemplates.header[index],
+      };
+      if (column.fixed) {
+        fixedColumnGroups.push(groupData);
+      } else {
+        scrollableColumnGroups.push(groupData);
+      }
+
+      column.columns.forEach((col, i) => {
+        assignCols(col, column.elementTemplates, i, fixedColumns, scrollableColumns);  
+      });
+    } else {
+      assignCols(column, elementTemplates, index, fixedColumns, scrollableColumns);
+    }
   });
 
   return {
@@ -112,3 +102,23 @@ export default createSelector([
     scrollableColumns,
   };
 });
+
+function assignCols (column, templates, counter, fixed, scrollable) {
+  let columnContainer = scrollable;
+  if (column.fixed) {
+    columnContainer = fixed;
+  }
+
+  columnContainer.cell.push({
+    props: column,
+    template: templates.cell[counter],
+  });
+  columnContainer.header.push({
+    props: column,
+    template: templates.header[counter],
+  });
+  columnContainer.footer.push({
+    props: column,
+    template: templates.footer[counter],
+  });
+}

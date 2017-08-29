@@ -78,10 +78,14 @@ function distributeFlexWidth(columns, flexWidth, flexGrow) {
  *   width: number,
  * }>}
  */
-function adjustColumnGroupWidths(columnGroups, expectedWidth) {
+function adjustColumnGroupWidths(columns, expectedWidth) {
   const allColumns = [];
-  forEach(columnGroups, columnGroup => {
-    Array.prototype.push.apply(allColumns, columnGroup.columns)
+  forEach(columns, column => {
+    if (column.isGroup) {
+      Array.prototype.push.apply(allColumns, column.columns)
+    } else {
+      allColumns.push(column);
+    }
   });
 
   var remainingFlexGrow = getTotalFlexGrow(allColumns);
@@ -91,8 +95,8 @@ function adjustColumnGroupWidths(columnGroups, expectedWidth) {
 
   var columnsWidth = getTotalWidth(allColumns);
   var remainingFlexWidth = Math.max(expectedWidth - columnsWidth, 0);
-  forEach(columnGroups, columnGroup => {
-    const currentColumns = columnGroup.columns;
+  forEach(columns, column => {
+    const currentColumns = column.columns;
     const columnGroupFlexGrow = getTotalFlexGrow(currentColumns);
     const columnGroupFlexWidth = Math.floor(
       columnGroupFlexGrow / remainingFlexGrow * remainingFlexWidth);
@@ -102,7 +106,7 @@ function adjustColumnGroupWidths(columnGroups, expectedWidth) {
     remainingFlexGrow -= columnGroupFlexGrow;
     remainingFlexWidth -= columnGroupFlexWidth;
 
-    columnGroup.width = newColumnSettings.width;
+    column.width = newColumnSettings.width;
     forEach(newColumnSettings.columnWidths, (newWidth, index) => {
       currentColumns[index].width = newWidth;
     });

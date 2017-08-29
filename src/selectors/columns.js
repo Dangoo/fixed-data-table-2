@@ -25,7 +25,7 @@ let columnDefinition;
 
 /**
  * @param {{
- *   columnGroups: !Array.<{
+ *   columns: !Array.<{
  *     columns: !Array.<columnDefinition>,
  *   }>,
  *   width: number,
@@ -37,10 +37,10 @@ let columnDefinition;
  * }} A list of all the columns
  */
 export default createSelector([
-  state => state.columnGroups,
+  state => state.columnGroups.columns,
   availableViewportWidth,
-], (columnGroups, availableViewportWidth) => {
-  const allColumns = WidthHelper.adjustColumnGroupWidths(columnGroups, availableViewportWidth);
+], (columns, availableViewportWidth) => {
+  const allColumns = WidthHelper.adjustColumnGroupWidths(columns, availableViewportWidth);
   const [fixedColumns, scrollableColumns] = partition(allColumns, column => column.fixed);
   return {
     allColumns,

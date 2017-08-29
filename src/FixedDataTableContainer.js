@@ -84,7 +84,6 @@ export default class FixedDataTableContainer extends React.Component {
       'columnGroups',
       'columnReorderingData',
       'columnResizingData',
-      'elementTemplates',
       'firstRowIndex',
       'firstRowOffset',
       'isColumnReordering',

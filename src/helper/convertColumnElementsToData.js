@@ -63,17 +63,18 @@ function convertColumnElementsToData(props) {
   const columns = map(children, _extractProps);
   forEach(children, (columnElement, index) => {
     if (columnElement.type.__TableColumnGroup__) {
-      // Todo: wrap in <HeaderWrapper>
-      elementTemplates.header.push(columnElement.props.header);
-
-      columns[index].children = convertColumnElementsToData(columnElement.props);
+      Object.assign(
+        columns[index],
+        convertColumnElementsToData(columnElement.props),
+        {isGroup: true}
+      );
     }
 
     _extractTemplates(elementTemplates, columnElement);
   });
 
   return {
-    children: columns,
+    columns,
     elementTemplates,
   };
 };

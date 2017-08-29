@@ -26,12 +26,6 @@ import shallowEqual from 'shallowEqual';
 const DEFAULT_INPUT_STATE = {
   bufferRowCount: null,
   columnGroups: [],
-  elementTemplates: {
-    cell: [],
-    footer: [],
-    groupHeader: [],
-    header: [],
-  },
   footerHeight: 0,
   groupHeaderHeight: 0,
   headerHeight: 0,
@@ -259,21 +253,15 @@ function setStateFromProps(state, props) {
     'width',
   ]);
 
-  const {
-    // Todo: Spread to all appearances
-    children: columnGroups,
-    elementTemplates,
-    useGroupHeader,
-  } = convertColumnElementsToData(props);
+  const columnGroups = convertColumnElementsToData(props);
 
   const { rowHeight, subRowHeight } = props;
   return Object.assign({}, state, {
     columnGroups,
-    elementTemplates,
     rowHeightGetter: () => rowHeight,
     subRowHeightGetter: () => subRowHeight || 0,
     // Todo: Remove placeholder
-    useGroupHeader: false
+    useGroupHeader: columnGroups.columns.some(column => column.isGroup)
   }, propsToState);
 }
 
