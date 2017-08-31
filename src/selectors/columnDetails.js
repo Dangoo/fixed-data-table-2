@@ -8,9 +8,9 @@
  *
  * @providesModule columnDetails
  */
-import columnsSelector from 'columns';
 import { createSelector } from 'reselect';
 import forEach from 'lodash/forEach';
+import columnsSelector from './columns';
 
 /**
  * @typedef {{
@@ -53,11 +53,10 @@ let columnTemplates;
  * }} Lists of details for the fixed and scrollable columns and column groups
  */
 export default createSelector([
-  state => state.columnGroups.columns,
   columnsSelector,
   state => state.columnGroups.elementTemplates,
-], (topLevelColumns, columns, elementTemplates) => {
-  const { allColumns } = columns;
+], (columns, elementTemplates) => {
+  const { columnGroups, allColumns } = columns;
 
   // Ugly transforms to extract data into a row consumable format.
   // TODO (jordan) figure out if this can efficiently be merged with the result of convertColumnElementsToData.
@@ -73,7 +72,8 @@ export default createSelector([
     header: [],
     footer: [],
   };
-  topLevelColumns.forEach((column, index) => {
+
+  forEach(columnGroups, (column, index) => {
     // Array.prototype.push.apply(columnsElementTemplates, column.elementTemplates);
 
     if (column.isGroup) {
@@ -81,6 +81,7 @@ export default createSelector([
         props: column,
         template: elementTemplates.header[index],
       };
+
       if (column.fixed) {
         fixedColumnGroups.push(groupData);
       } else {
@@ -88,7 +89,7 @@ export default createSelector([
       }
 
       column.columns.forEach((col, i) => {
-        assignCols(col, column.elementTemplates, i, fixedColumns, scrollableColumns);  
+        assignCols(col, column.elementTemplates, i, fixedColumns, scrollableColumns);
       });
     } else {
       assignCols(column, elementTemplates, index, fixedColumns, scrollableColumns);
@@ -103,7 +104,7 @@ export default createSelector([
   };
 });
 
-function assignCols (column, templates, counter, fixed, scrollable) {
+function assignCols(column, templates, counter, fixed, scrollable) {
   let columnContainer = scrollable;
   if (column.fixed) {
     columnContainer = fixed;

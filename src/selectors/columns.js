@@ -8,41 +8,42 @@
  *
  * @providesModule columns
  */
-import Scrollbar from 'Scrollbar';
-import WidthHelper from 'FixedDataTableWidthHelper';
-import availableViewportWidth from 'availableViewportWidth';
 import { createSelector } from 'reselect';
 import partition from 'lodash/partition';
+import WidthHelper from '../FixedDataTableWidthHelper';
+import availableViewportWidth from './availableViewportWidth';
 
 /**
- * @typedef {{
- *   fixed: boolean,
- *   flexGrow: number,
- *   width: number
- * }}
+ * A recursive column definition
+ * @typedef  {Object}              RecursiveColumnType
+ * @property {number}              flexGrow
+ * @property {number}              width
+ * @property {boolean}             [isGroup]
+ * @property {RecursiveColumnType} [columns]
  */
-let columnDefinition;
 
 /**
  * @param {{
- *   columns: !Array.<{
- *     columns: !Array.<columnDefinition>,
- *   }>,
+ *   columnGroups: {
+ *     columns: !Array.<RecursiveColumnType>,
+ *   },
  *   width: number,
  * }} state
  * @return {{
- *   allColumns: !Array.<columnDefinition>,
- *   fixedColumns: !Array.<columnDefinition>,
- *   scrollableColumns: !Array.<columnDefinition>,
+ *   columnGroups: !Array.<RecursiveColumnType>,
+ *   allColumns: !Array.<RecursiveColumnType>,
+ *   fixedColumns: !Array.<RecursiveColumnType>,
+ *   scrollableColumns: !Array.<RecursiveColumnType>,
  * }} A list of all the columns
  */
 export default createSelector([
-  state => state.columnGroups.columns,
+  state => state.columnGroups,
   availableViewportWidth,
-], (columns, availableViewportWidth) => {
-  const allColumns = WidthHelper.adjustColumnGroupWidths(columns, availableViewportWidth);
-  const [fixedColumns, scrollableColumns] = partition(allColumns, column => column.fixed);
+], (columnGroups, availableViewportWidth) => {
+  const { columnGroups: newColumnGroups, allColumns } = WidthHelper.adjustColumnGroupWidths(columnGroups, availableViewportWidth);
+  const [fixedColumns, scrollableColumns] = partition(WidthHelper.getNestedColumns(newColumnGroups), column => column.fixed);
   return {
+    columnGroups: newColumnGroups,
     allColumns,
     fixedColumns,
     scrollableColumns,

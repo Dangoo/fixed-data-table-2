@@ -31,13 +31,13 @@ function _extractProps(column) {
     'isResizable',
     'width',
   ]);
-};
+}
 
 function _extractTemplates(elementTemplates, columnElement) {
   elementTemplates.cell.push(columnElement.props.cell);
   elementTemplates.footer.push(columnElement.props.footer);
   elementTemplates.header.push(columnElement.props.header);
-};
+}
 
 /**
  * Converts React column / column group elements into props and cell rendering templates
@@ -76,7 +76,8 @@ function convertColumnElementsToData(props) {
   return {
     columns,
     elementTemplates,
+    isGroup: true,
   };
-};
+}
 
 module.exports = convertColumnElementsToData;
